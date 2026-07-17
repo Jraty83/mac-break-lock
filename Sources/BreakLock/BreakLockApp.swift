@@ -6,7 +6,6 @@ struct BreakLockApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
-        // Menu bar app: windows only when needed.
         MenuBarExtra {
             MenuContent(model: appDelegate.model)
         } label: {
@@ -21,7 +20,6 @@ struct BreakLockApp: App {
     }
 }
 
-/// Label stays mounted while the status item exists, so we can open windows without forcing one at every launch.
 private struct MenuBarLabel: View {
     @ObservedObject var model: AppModel
     @Environment(\.openWindow) private var openWindow
@@ -34,6 +32,21 @@ private struct MenuBarLabel: View {
                 NSApp.activate(ignoringOtherApps: true)
                 model.shouldOpenPromptWindow = false
             }
+            .onChange(of: model.shouldClosePromptWindow) { _, close in
+                guard close else { return }
+                closePromptWindows()
+                model.shouldClosePromptWindow = false
+            }
+    }
+}
+
+@MainActor
+private func closePromptWindows() {
+    for window in NSApp.windows {
+        let id = window.identifier?.rawValue ?? ""
+        if id == "prompt" || window.title == L10n.t("app.name") {
+            window.close()
+        }
     }
 }
 
@@ -43,14 +56,8 @@ private struct MenuContent: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(model.statusText)
-                .font(.headline)
+            BreakStatusHeader(model: model)
                 .padding(.bottom, 4)
-
-            Button(L10n.t("menu.permissions")) {
-                model.presentPermissions()
-                openWindow(id: "prompt")
-            }
 
             Button(L10n.t("menu.open_morning_prompt")) {
                 model.openMorningPromptManually()
@@ -72,22 +79,70 @@ private struct MenuContent: View {
                 }
             }
 
+            Button(L10n.t("menu.clear_breaks")) {
+                model.clearBreaks()
+            }
+
             Button(L10n.t("menu.reschedule")) {
-                Task {
-                    BreakScheduler.shared.reload()
-                    await BreakScheduler.shared.rescheduleAll()
-                    model.refreshStatus()
-                }
+                model.forceReschedule()
+            }
+
+            Button(L10n.t("menu.permissions")) {
+                model.presentPermissions()
+                openWindow(id: "prompt")
             }
 
             Divider()
 
             Button(L10n.t("menu.quit")) {
-                NSApp.terminate(nil)
+                model.quit()
             }
         }
         .padding(8)
         .frame(minWidth: 240)
+        .onAppear {
+            model.refreshStatus()
+        }
+    }
+}
+
+private struct BreakStatusHeader: View {
+    @ObservedObject var model: AppModel
+
+    var body: some View {
+        if !PermissionService.isScreenLockReady || BreakScheduler.shared.isOnVacation || model.breakItems.isEmpty {
+            Text(model.statusText)
+                .font(.headline)
+        } else {
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
+                Text(L10n.t("status.breaks_prefix"))
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                ForEach(Array(model.breakItems.enumerated()), id: \.element.id) { index, item in
+                    if index > 0 {
+                        Text(", ")
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                    }
+                    Text(item.time)
+                        .font(.headline)
+                        .fontWeight(item.state == .next ? .bold : .regular)
+                        .foregroundStyle(style(for: item.state))
+                }
+            }
+            .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func style(for state: BreakScheduler.BreakDisplayState) -> AnyShapeStyle {
+        switch state {
+        case .past, .cancelled:
+            AnyShapeStyle(.tertiary)
+        case .next:
+            AnyShapeStyle(.primary)
+        case .upcoming:
+            AnyShapeStyle(.secondary)
+        }
     }
 }
 
@@ -116,18 +171,11 @@ private struct PromptRootView: View {
                     onCancel: { model.sheet = .morning }
                 )
             case nil:
-                VStack(spacing: 12) {
-                    Text(L10n.t("idle.title"))
-                        .font(.title2.weight(.semibold))
-                    Text(model.statusText)
-                        .foregroundStyle(.secondary)
-                    Button(L10n.t("idle.open_permissions")) {
-                        model.presentPermissions()
+                Color.clear
+                    .frame(width: 1, height: 1)
+                    .onAppear {
+                        closePromptWindows()
                     }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding(24)
-                .frame(width: 380, height: 180)
             }
         }
     }
@@ -140,6 +188,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         Task { await model.start() }
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        // Cancel timers + pending notifications so Quit never locks later in the background.
+        BreakScheduler.shared.shutdown()
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {

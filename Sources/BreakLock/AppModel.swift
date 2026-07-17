@@ -22,7 +22,9 @@ final class AppModel: ObservableObject {
 
     @Published var sheet: Sheet?
     @Published var statusText: String = L10n.t("status.starting")
+    @Published var breakItems: [BreakScheduler.BreakDisplayItem] = []
     @Published var shouldOpenPromptWindow = false
+    @Published var shouldClosePromptWindow = false
     @Published var permissionRefreshToken = 0
 
     private let scheduler = BreakScheduler.shared
@@ -40,8 +42,6 @@ final class AppModel: ObservableObject {
         refreshStatus()
         observeSessionEvents()
 
-        // First install only — do not pop a window on every launch (menu bar app).
-        // Open Permissions from the menu if something is still missing.
         if !PermissionService.onboardingCompleted {
             presentPermissions()
         } else {
@@ -68,12 +68,20 @@ final class AppModel: ObservableObject {
 
     func finishOnboarding() {
         PermissionService.onboardingCompleted = true
-        sheet = nil
+        dismissPromptWindow()
         refreshStatus()
         evaluatePrompt()
     }
 
+    func dismissPromptWindow() {
+        sheet = nil
+        shouldClosePromptWindow = true
+    }
+
     func refreshStatus() {
+        scheduler.rollToCurrentDayIfNeeded()
+        breakItems = scheduler.breakDisplayItems()
+
         if !PermissionService.isScreenLockReady {
             statusText = L10n.t("status.accessibility_missing")
             return
@@ -81,10 +89,9 @@ final class AppModel: ObservableObject {
         if scheduler.isOnVacation, let until = scheduler.state.vacationUntilDay {
             statusText = L10n.tf("status.vacation", until)
         } else if scheduler.promptedToday {
-            let times = scheduler.state.breakTimes.filter { !scheduler.state.cancelledBreakIDs.contains($0) }
-            statusText = times.isEmpty
+            statusText = breakItems.isEmpty
                 ? L10n.t("status.no_breaks_today")
-                : L10n.tf("status.breaks", times.joined(separator: ", "))
+                : L10n.t("status.breaks_prefix")
         } else {
             statusText = L10n.t("status.waiting_prompt")
         }
@@ -106,7 +113,7 @@ final class AppModel: ObservableObject {
 
     func skipToday() {
         scheduler.skipToday()
-        sheet = nil
+        dismissPromptWindow()
         refreshStatus()
     }
 
@@ -121,14 +128,14 @@ final class AppModel: ObservableObject {
     func confirmBreaks(_ times: [Date]) {
         Task {
             await scheduler.confirmBreaks(times)
-            sheet = nil
+            dismissPromptWindow()
             refreshStatus()
         }
     }
 
     func confirmVacation(_ day: Date) {
         scheduler.setVacation(until: day)
-        sheet = nil
+        dismissPromptWindow()
         refreshStatus()
     }
 
@@ -136,6 +143,24 @@ final class AppModel: ObservableObject {
         scheduler.clearVacation()
         refreshStatus()
         evaluatePrompt()
+    }
+
+    func clearBreaks() {
+        scheduler.clearBreaks()
+        refreshStatus()
+    }
+
+    func forceReschedule() {
+        Task {
+            scheduler.reload()
+            await scheduler.rescheduleAll()
+            refreshStatus()
+        }
+    }
+
+    func quit() {
+        scheduler.shutdown()
+        NSApp.terminate(nil)
     }
 
     private func observeSessionEvents() {
@@ -146,7 +171,9 @@ final class AppModel: ObservableObject {
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor in
+                self?.scheduler.rollToCurrentDayIfNeeded()
                 await self?.scheduler.rescheduleAll()
+                self?.refreshStatus()
                 self?.evaluatePrompt()
             }
         }
@@ -157,6 +184,8 @@ final class AppModel: ObservableObject {
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor in
+                self?.scheduler.rollToCurrentDayIfNeeded()
+                self?.refreshStatus()
                 self?.evaluatePrompt()
             }
         }

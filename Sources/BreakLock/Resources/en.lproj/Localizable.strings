@@ -6,12 +6,14 @@
 "status.vacation" = "Vacation mode until %@";
 "status.no_breaks_today" = "No breaks today";
 "status.breaks" = "Breaks: %@";
+"status.breaks_prefix" = "Breaks: ";
 "status.waiting_prompt" = "Waiting for morning prompt";
 
 "menu.permissions" = "Permissions…";
 "menu.open_morning_prompt" = "Open morning prompt…";
 "menu.clear_vacation" = "Turn off vacation mode";
-"menu.lock_now" = "Lock screen now (test)";
+"menu.lock_now" = "Lock screen now";
+"menu.clear_breaks" = "Clear breaks";
 "menu.reschedule" = "Force reschedule";
 "menu.quit" = "Quit BreakLock";
 

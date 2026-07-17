@@ -7,12 +7,36 @@ final class BreakScheduler {
     private var lockTimers: [String: Timer] = [:]
     private(set) var state: BreakLockState = Persistence.load()
 
+    enum BreakDisplayState {
+        case past
+        case next
+        case upcoming
+        case cancelled
+    }
+
+    struct BreakDisplayItem: Identifiable {
+        let id: String
+        let time: String
+        let state: BreakDisplayState
+    }
+
     func reload() {
         state = Persistence.load()
+        rollToCurrentDayIfNeeded()
     }
 
     func save() {
         Persistence.save(state)
+    }
+
+    /// New calendar day → empty break list (morning starts clean).
+    func rollToCurrentDayIfNeeded(now: Date = Date()) {
+        let today = DayFormat.dayString(now)
+        guard let last = state.lastPromptDay, last != today else { return }
+        state.breakTimes = []
+        state.cancelledBreakIDs = []
+        save()
+        clearSchedules()
     }
 
     var isOnVacation: Bool {
@@ -26,9 +50,37 @@ final class BreakScheduler {
         state.lastPromptDay == DayFormat.dayString()
     }
 
+    /// All of today's breaks for the menu, with past / next / upcoming styling.
+    func breakDisplayItems(now: Date = Date()) -> [BreakDisplayItem] {
+        rollToCurrentDayIfNeeded(now: now)
+        guard state.lastPromptDay == DayFormat.dayString(now) else { return [] }
+
+        let sorted = state.breakTimes.sorted()
+        let nextID = sorted.first { hhmm in
+            guard !state.cancelledBreakIDs.contains(hhmm),
+                  let date = DayFormat.parseTimeToday(hhmm, now: now) else { return false }
+            return date > now
+        }
+
+        return sorted.map { hhmm in
+            if state.cancelledBreakIDs.contains(hhmm) {
+                return BreakDisplayItem(id: hhmm, time: hhmm, state: .cancelled)
+            }
+            guard let date = DayFormat.parseTimeToday(hhmm, now: now) else {
+                return BreakDisplayItem(id: hhmm, time: hhmm, state: .past)
+            }
+            if date <= now {
+                return BreakDisplayItem(id: hhmm, time: hhmm, state: .past)
+            }
+            if hhmm == nextID {
+                return BreakDisplayItem(id: hhmm, time: hhmm, state: .next)
+            }
+            return BreakDisplayItem(id: hhmm, time: hhmm, state: .upcoming)
+        }
+    }
+
     static func isWeekday(_ date: Date = Date()) -> Bool {
         let weekday = Calendar.current.component(.weekday, from: date)
-        // 1 = Sunday ... 7 = Saturday
         return weekday >= 2 && weekday <= 6
     }
 
@@ -39,6 +91,7 @@ final class BreakScheduler {
     }
 
     func shouldShowMorningPrompt(now: Date = Date()) -> Bool {
+        rollToCurrentDayIfNeeded(now: now)
         guard Self.isWeekday(now) else { return false }
         guard Self.isAtOrAfterPromptHour(now) else { return false }
         guard !isOnVacation else { return false }
@@ -47,6 +100,15 @@ final class BreakScheduler {
     }
 
     func skipToday() {
+        state.lastPromptDay = DayFormat.dayString()
+        state.breakTimes = []
+        state.cancelledBreakIDs = []
+        save()
+        clearSchedules()
+    }
+
+    /// Clears today's breaks and cancels timers/notifications (keeps “prompted today”).
+    func clearBreaks() {
         state.lastPromptDay = DayFormat.dayString()
         state.breakTimes = []
         state.cancelledBreakIDs = []
@@ -93,7 +155,13 @@ final class BreakScheduler {
         lockTimers.removeAll()
     }
 
+    /// Tear down everything when quitting — no background locks after Quit.
+    func shutdown() {
+        clearSchedules()
+    }
+
     func rescheduleAll() async {
+        rollToCurrentDayIfNeeded()
         clearSchedules()
         guard !isOnVacation else { return }
         guard state.lastPromptDay == DayFormat.dayString() else { return }
@@ -112,7 +180,6 @@ final class BreakScheduler {
 
     private func scheduleLocalLockTimer(id: String, breakDate: Date) {
         lockTimers[id]?.invalidate()
-        // Fire at the start of that minute so "10:00" locks when the clock hits 10:00.
         let fireDate = Calendar.current.date(
             bySettingHour: Calendar.current.component(.hour, from: breakDate),
             minute: Calendar.current.component(.minute, from: breakDate),
@@ -122,7 +189,6 @@ final class BreakScheduler {
 
         let interval = fireDate.timeIntervalSinceNow
         guard interval > 0 else {
-            // Exact minute already reached while confirming — lock immediately.
             performLockIfNeeded(id: id)
             return
         }
@@ -132,7 +198,6 @@ final class BreakScheduler {
                 self?.performLockIfNeeded(id: id)
             }
         }
-        // .common keeps the timer alive while the menu / tracking run-loop modes are active.
         RunLoop.main.add(timer, forMode: .common)
         lockTimers[id] = timer
         NSLog("BreakLock: scheduled lock %@ in %.1fs", id, interval)

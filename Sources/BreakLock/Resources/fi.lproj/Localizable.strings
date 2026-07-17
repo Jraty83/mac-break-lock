@@ -6,12 +6,14 @@
 "status.vacation" = "Lomamoodi %@ asti";
 "status.no_breaks_today" = "Ei taukoja tänään";
 "status.breaks" = "Tauot: %@";
+"status.breaks_prefix" = "Tauot: ";
 "status.waiting_prompt" = "Odottaa aamupromptia";
 
 "menu.permissions" = "Luvat…";
 "menu.open_morning_prompt" = "Avaa aamuprompti…";
 "menu.clear_vacation" = "Poista lomamoodi";
-"menu.lock_now" = "Lukitse näyttö nyt (testi)";
+"menu.lock_now" = "Lukitse näyttö nyt";
+"menu.clear_breaks" = "Tyhjennä tauot";
 "menu.reschedule" = "Pakota uudelleenaikataulutus";
 "menu.quit" = "Lopeta BreakLock";
 
