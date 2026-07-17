@@ -1,0 +1,68 @@
+/* English (default) — matches macOS when preferred language is English */
+"app.name" = "BreakLock";
+
+"status.starting" = "Starting…";
+"status.accessibility_missing" = "Accessibility missing — open Permissions…";
+"status.vacation" = "Vacation mode until %@";
+"status.no_breaks_today" = "No breaks today";
+"status.breaks" = "Breaks: %@";
+"status.waiting_prompt" = "Waiting for morning prompt";
+
+"menu.permissions" = "Permissions…";
+"menu.open_morning_prompt" = "Open morning prompt…";
+"menu.clear_vacation" = "Turn off vacation mode";
+"menu.lock_now" = "Lock screen now (test)";
+"menu.reschedule" = "Force reschedule";
+"menu.quit" = "Quit BreakLock";
+
+"prompt.morning.title" = "When do you want to take breaks today?";
+"prompt.morning.subtitle" = "Set break times, skip today, or mute with vacation mode.";
+"prompt.morning.set_times" = "Set break times";
+"prompt.morning.skip" = "No breaks today";
+"prompt.morning.vacation" = "Set vacation mode";
+
+"prompt.breaks.title" = "Break times";
+"prompt.breaks.subtitle" = "Add times one by one. The screen locks automatically at each time.";
+"prompt.breaks.item" = "Break %d";
+"prompt.breaks.add" = "Add";
+"prompt.breaks.remove" = "Remove";
+"prompt.breaks.cancel" = "Cancel";
+"prompt.breaks.confirm" = "Confirm";
+
+"prompt.vacation.title" = "Vacation mode";
+"prompt.vacation.subtitle" = "Mute the morning prompt and break locks until the selected date (inclusive).";
+"prompt.vacation.until" = "Active until";
+"prompt.vacation.cancel" = "Cancel";
+"prompt.vacation.confirm" = "Set vacation mode";
+
+"onboarding.title" = "Welcome to BreakLock";
+"onboarding.subtitle" = "Two permissions are needed before use — the same way other Mac apps ask on first launch.";
+"onboarding.notifications.title" = "Notifications";
+"onboarding.notifications.detail" = "5-minute warning before a break, with a “No break” action.";
+"onboarding.accessibility.title" = "Accessibility";
+"onboarding.accessibility.detail" = "Required to lock the screen when a break starts.";
+"onboarding.accessibility.hint" = "After enabling BreakLock in the Accessibility list, return here — status updates automatically.";
+"onboarding.allow" = "Allow…";
+"onboarding.open_settings" = "Open Settings";
+"onboarding.open_accessibility" = "Open Accessibility";
+"onboarding.recheck" = "Check again";
+"onboarding.done" = "Done";
+"onboarding.continue_partial" = "Continue without all permissions";
+"onboarding.status.granted" = "Allowed";
+"onboarding.status.missing" = "Missing";
+
+"idle.title" = "BreakLock";
+"idle.open_permissions" = "Open permissions";
+"idle.open_morning" = "Open morning prompt";
+
+"notify.warning.title" = "BreakLock";
+"notify.warning.body" = "Break starts in 5 minutes";
+"notify.action.no_break" = "No break";
+
+"alert.lock_failed.title" = "Could not lock the screen";
+"alert.lock_failed.body" = "BreakLock needs Accessibility permission to lock the screen.\n\nTap “Open permissions”, enable BreakLock in the list, then try again.";
+"alert.lock_failed.open" = "Open permissions";
+"alert.lock_failed.ok" = "OK";
+
+"info.notifications_usage" = "BreakLock sends a break warning in Notification Center and lets you cancel a single break.";
+"info.apple_events_usage" = "BreakLock may use System Events automation to lock the screen if the system lock API is unavailable.";

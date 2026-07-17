@@ -1,0 +1,68 @@
+/* Finnish — used when macOS preferred language is Finnish */
+"app.name" = "BreakLock";
+
+"status.starting" = "Käynnistyy…";
+"status.accessibility_missing" = "Käyttöapu puuttuu — avaa Luvat…";
+"status.vacation" = "Lomamoodi %@ asti";
+"status.no_breaks_today" = "Ei taukoja tänään";
+"status.breaks" = "Tauot: %@";
+"status.waiting_prompt" = "Odottaa aamupromptia";
+
+"menu.permissions" = "Luvat…";
+"menu.open_morning_prompt" = "Avaa aamuprompti…";
+"menu.clear_vacation" = "Poista lomamoodi";
+"menu.lock_now" = "Lukitse näyttö nyt (testi)";
+"menu.reschedule" = "Pakota uudelleenaikataulutus";
+"menu.quit" = "Lopeta BreakLock";
+
+"prompt.morning.title" = "Milloin haluat tänään pitää taukoja?";
+"prompt.morning.subtitle" = "Aseta taukoajat, ohita tämä päivä tai hiljennä lomamoodiin.";
+"prompt.morning.set_times" = "Aseta taukoajat";
+"prompt.morning.skip" = "Ei taukoja tänään";
+"prompt.morning.vacation" = "Aseta lomamoodi";
+
+"prompt.breaks.title" = "Taukoajat";
+"prompt.breaks.subtitle" = "Lisää kellonajat yksi kerrallaan. Lukitus tapahtuu automaattisesti.";
+"prompt.breaks.item" = "Tauko %d";
+"prompt.breaks.add" = "Lisää";
+"prompt.breaks.remove" = "Poista";
+"prompt.breaks.cancel" = "Peruuta";
+"prompt.breaks.confirm" = "Vahvista";
+
+"prompt.vacation.title" = "Lomamoodi";
+"prompt.vacation.subtitle" = "Hiljennä aamuprompti ja taukolukitukset valittuun päivään asti (mukaan lukien).";
+"prompt.vacation.until" = "Voimassa asti";
+"prompt.vacation.cancel" = "Peruuta";
+"prompt.vacation.confirm" = "Aseta lomamoodi";
+
+"onboarding.title" = "Tervetuloa BreakLockiin";
+"onboarding.subtitle" = "Ennen käyttöä tarvitaan kaksi lupaa — samalla tavalla kuin muilla Mac-sovelluksilla ensimmäisellä kerralla.";
+"onboarding.notifications.title" = "Ilmoitukset";
+"onboarding.notifications.detail" = "5 min varoitus ennen taukoa ja nappi ”Ei taukoa”.";
+"onboarding.accessibility.title" = "Käyttöapu (Accessibility)";
+"onboarding.accessibility.detail" = "Tarvitaan näytön lukitukseen tauon alkaessa.";
+"onboarding.accessibility.hint" = "Kun olet kytkenyt BreakLockin päälle Käyttöapu-listassa, palaa tähän — tila päivittyy automaattisesti.";
+"onboarding.allow" = "Salli…";
+"onboarding.open_settings" = "Avaa asetukset";
+"onboarding.open_accessibility" = "Avaa Käyttöapu";
+"onboarding.recheck" = "Tarkista uudelleen";
+"onboarding.done" = "Valmis";
+"onboarding.continue_partial" = "Jatka ilman kaikkia lupia";
+"onboarding.status.granted" = "Sallittu";
+"onboarding.status.missing" = "Puuttuu";
+
+"idle.title" = "BreakLock";
+"idle.open_permissions" = "Avaa luvat";
+"idle.open_morning" = "Avaa aamuprompti";
+
+"notify.warning.title" = "BreakLock";
+"notify.warning.body" = "Tauko alkaa 5 min päästä";
+"notify.action.no_break" = "Ei taukoa";
+
+"alert.lock_failed.title" = "Näyttöä ei voitu lukita";
+"alert.lock_failed.body" = "BreakLock tarvitsee Käyttöapu-luvan lukitukseen.\n\nPaina ”Avaa luvat”, salli BreakLock listassa, ja kokeile uudelleen.";
+"alert.lock_failed.open" = "Avaa luvat";
+"alert.lock_failed.ok" = "OK";
+
+"info.notifications_usage" = "BreakLock lähettää taukovaroituksen Notification Centeriin ja antaa peruuttaa yksittäisen tauon.";
+"info.apple_events_usage" = "BreakLock käyttää System Events -automaatiota näytön lukitsemiseen, jos järjestelmän lukituskutsu ei ole käytettävissä.";
