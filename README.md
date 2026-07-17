@@ -1,8 +1,8 @@
 # BreakLock
 
-Menu bar app for weekday breaks — lives in the menu bar.
+Customizable Menu bar app for breaks.
 
-Morning prompt on weekdays, native Notification Center warning (with **No break**), and automatic screen lock at the times you set. UI language follows macOS (`en` + `fi`).
+Morning prompt on weekdays, native Notification Center warnings (with No break) and automatic screen lock at the times you set.
 
 ## Install
 
@@ -19,7 +19,7 @@ chmod +x Scripts/*.sh
 | Menu bar | Cup icon (top-right) |
 | Open at Login | Registered automatically on first launch |
 
-Give the required permissions (**Allow**) when macOS asks.
+Grant the required permissions (Allow) when asked.
 
 Uninstall:
 
