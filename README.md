@@ -1,6 +1,8 @@
 # BreakLock
 
-Menu bar app for weekday breaks — same idea as [Hot](https://github.com/xs-labs/Hot): lives in the **menu bar**, not the Dock.
+Menu bar app for weekday breaks — lives in the menu bar.
+
+Morning prompt on weekdays, native Notification Center warning (with **No break**), and automatic screen lock at the times you set. UI language follows macOS (`en` + `fi`).
 
 ## Install
 
@@ -15,34 +17,14 @@ chmod +x Scripts/*.sh
 |------|--------|
 | App | `~/Applications/BreakLock.app` (Applications / Spotlight) |
 | Menu bar | Cup icon (top-right) |
-| Open at Login | **System Settings → General → Login Items** (same list as Hot) |
+| Open at Login | Registered automatically on first launch |
 
-### Permissions — correct paths
-
-**Accessibility (screen lock)** — *not* the VoiceOver/Zoom page:
-
-**System Settings → Privacy & Security → Accessibility** → enable **BreakLock**
-
-**Notifications:**
-
-**System Settings → Notifications → BreakLock** → Allow
-
-### Login Items
-
-You do **not** need to press **+** yourself. On launch the app registers as an Open at Login item (like Hot). It should appear in that list after install; if macOS asks for approval, allow it there.
+Give the required permissions (**Allow**) when macOS asks.
 
 Uninstall:
 
 ```bash
 ./Scripts/uninstall.sh
-```
-
-## Why permissions reset after rebuilds
-
-macOS binds Accessibility to the app path/binary. Prefer the installed app only:
-
-```bash
-open -a BreakLock
 ```
 
 ## Localization
