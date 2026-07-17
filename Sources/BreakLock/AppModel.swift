@@ -39,17 +39,13 @@ final class AppModel: ObservableObject {
         refreshStatus()
         observeSessionEvents()
 
-        if shouldPresentOnboarding() {
+        // First install only — do not pop a window on every launch (Hot-style menu bar).
+        // Missing Accessibility later is shown in the menu status; open Permissions from the menu.
+        if !PermissionService.onboardingCompleted {
             presentPermissions()
         } else {
             evaluatePrompt()
         }
-    }
-
-    private func shouldPresentOnboarding() -> Bool {
-        if !PermissionService.onboardingCompleted { return true }
-        if !PermissionService.isAccessibilityTrusted { return true }
-        return false
     }
 
     func presentPermissions() {

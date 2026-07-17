@@ -4,28 +4,36 @@ import SwiftUI
 @main
 struct BreakLockApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @StateObject private var model = AppModel()
 
     var body: some Scene {
-        MenuBarExtra(L10n.t("app.name"), systemImage: "cup.and.saucer.fill") {
-            MenuContent(model: model)
+        // Hot-style: always in the menu bar; windows only when needed.
+        MenuBarExtra {
+            MenuContent(model: appDelegate.model)
+        } label: {
+            MenuBarLabel(model: appDelegate.model)
         }
 
         Window(L10n.t("app.name"), id: "prompt") {
-            PromptRootView(model: model)
-                .task {
-                    appDelegate.model = model
-                    await model.start()
-                }
-                .onChange(of: model.shouldOpenPromptWindow) { _, open in
-                    guard open else { return }
-                    NSApp.activate(ignoringOtherApps: true)
-                    model.shouldOpenPromptWindow = false
-                }
+            PromptRootView(model: appDelegate.model)
         }
         .windowResizability(.contentSize)
         .defaultPosition(.center)
-        .defaultLaunchBehavior(.presented)
+    }
+}
+
+/// Label stays mounted while the status item exists, so we can open windows without forcing one at every launch.
+private struct MenuBarLabel: View {
+    @ObservedObject var model: AppModel
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        Image(systemName: "cup.and.saucer.fill")
+            .onChange(of: model.shouldOpenPromptWindow) { _, open in
+                guard open else { return }
+                openWindow(id: "prompt")
+                NSApp.activate(ignoringOtherApps: true)
+                model.shouldOpenPromptWindow = false
+            }
     }
 }
 
@@ -80,12 +88,6 @@ private struct MenuContent: View {
         }
         .padding(8)
         .frame(minWidth: 240)
-        .onChange(of: model.shouldOpenPromptWindow) { _, open in
-            guard open else { return }
-            openWindow(id: "prompt")
-            NSApp.activate(ignoringOtherApps: true)
-            model.shouldOpenPromptWindow = false
-        }
     }
 }
 
@@ -131,15 +133,21 @@ private struct PromptRootView: View {
     }
 }
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    weak var model: AppModel?
+    let model = AppModel()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
+        Task { await model.start() }
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        model?.presentPermissions()
+        if !PermissionService.onboardingCompleted {
+            model.presentPermissions()
+        } else {
+            model.openMorningPromptManually()
+        }
         return true
     }
 }

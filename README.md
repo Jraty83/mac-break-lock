@@ -1,55 +1,74 @@
 # BreakLock
 
-Lightweight macOS menu bar app for weekday breaks: morning prompt, native Notification Center warning with an action button, and automatic screen lock (same as Control+Command+Q).
+Menu bar app for weekday breaks — same idea as apps like [Hot](https://github.com/xs-labs/Hot): lives in the **menu bar**, not the Dock.
 
-UI language follows **macOS preferred languages** (`en` + `fi` shipped). With English first (e.g. U.S.), the app shows English.
+- Morning prompt on weekdays
+- Native Notification Center warning (+ **No break**)
+- Locks the screen at break time (Control+Command+Q equivalent)
+- UI language follows macOS (`en` + `fi`)
 
-## Features
+## Install (recommended)
 
-1. **Weekdays after 08:00** (or first unlock after that) — morning prompt
-2. **No breaks today** — skip until next weekday
-3. **Vacation mode** — mute until a chosen date
-4. **Set break times** — add times one by one, then confirm
-5. **5 minutes before** — native banner with **No break**
-6. **At break time** — locks the screen; unlock normally with password / Touch ID
-
-## Requirements
-
-- macOS 15+
-- Apple Command Line Tools (`swift`)
-- Permissions: **Notifications**, **Accessibility** (prompted on first launch)
-
-## Build & run
+From the repo:
 
 ```bash
-cd ~/mac-break-lock
+git clone https://github.com/Jraty83/mac-break-lock.git
+cd mac-break-lock
 chmod +x Scripts/*.sh
+./Scripts/install.sh
+```
+
+What that does:
+
+| Step | Result |
+|------|--------|
+| Build | `.build/App/BreakLock.app` |
+| Copy | `~/Applications/BreakLock.app` → shows under **Applications** / Spotlight / Launchpad |
+| LaunchAgent | Starts at **login**, stays running (`KeepAlive`) |
+| Menu bar | Cup icon in the top-right status area (like Hot’s flame) |
+
+After install:
+
+1. **System Settings → Privacy & Security → Accessibility** → turn **ON** BreakLock  
+   (If you previously allowed a `.build/…` copy, remove that row and enable the one for `~/Applications/BreakLock.app`.)
+2. **System Settings → Notifications → BreakLock** → Allow
+
+Uninstall:
+
+```bash
+./Scripts/uninstall.sh
+```
+
+## Why permissions were asked again
+
+macOS ties Accessibility to the **exact app binary/path**. Rebuilding, moving, or running from `.build/` vs `~/Applications/` looks like a **new app**, so TCC may show BreakLock again with the toggle **off**. Always run the installed copy:
+
+```bash
+open -a BreakLock
+```
+
+## After Quit
+
+With the LaunchAgent installed, macOS restarts BreakLock automatically (`KeepAlive`).  
+Without it:
+
+```bash
+open -a BreakLock
+# or
+open ~/Applications/BreakLock.app
+```
+
+## Develop / rebuild only
+
+```bash
 ./Scripts/build-app.sh
-open .build/App/BreakLock.app
+open .build/App/BreakLock.app   # temporary — prefer ./Scripts/install.sh for daily use
 ```
-
-### After Quit — how to start again
-
-BreakLock does not live in the Dock (menu bar only). After **Quit BreakLock**:
-
-```bash
-open ~/mac-break-lock/.build/App/BreakLock.app
-```
-
-Or Spotlight → type `BreakLock` if you installed it to `~/Applications` via:
-
-```bash
-./Scripts/install-launch-agent.sh
-```
-
-That also starts BreakLock at login (`KeepAlive`).
 
 ## Localization
 
 - `Sources/BreakLock/Resources/en.lproj/Localizable.strings`
 - `Sources/BreakLock/Resources/fi.lproj/Localizable.strings`
-
-Language = system order (System Settings → General → Language & Region).
 
 ## State
 
