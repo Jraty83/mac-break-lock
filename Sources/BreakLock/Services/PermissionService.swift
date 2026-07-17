@@ -10,6 +10,11 @@ enum PermissionService {
         AXIsProcessTrusted()
     }
 
+    /// Screen lock is ready when the system lock API works and/or Accessibility is granted.
+    static var isScreenLockReady: Bool {
+        ScreenLockService.hasSystemLockAPI || isAccessibilityTrusted
+    }
+
     static func notificationStatus() async -> UNAuthorizationStatus {
         await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
     }

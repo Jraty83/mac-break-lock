@@ -4,9 +4,15 @@ import Foundation
 
 @MainActor
 enum ScreenLockService {
+    /// True when macOS exposes SACLockScreenImmediate (no Accessibility needed).
+    static var hasSystemLockAPI: Bool {
+        systemLockFunction() != nil
+    }
+
     @discardableResult
     static func lockScreen() -> Bool {
-        if lockViaLoginFramework() {
+        if let lock = systemLockFunction() {
+            lock()
             NSLog("BreakLock: locked via SACLockScreenImmediate")
             return true
         }
@@ -20,7 +26,8 @@ enum ScreenLockService {
         return false
     }
 
-    private static func lockViaLoginFramework() -> Bool {
+    /// Probe only — does not lock the screen.
+    private static func systemLockFunction() -> (@convention(c) () -> Void)? {
         let candidates = [
             "/System/Library/PrivateFrameworks/login.framework/login",
             "/System/Library/PrivateFrameworks/login.framework/Versions/A/login",
@@ -31,13 +38,14 @@ enum ScreenLockService {
 
         for path in candidates {
             guard let handle = dlopen(path, RTLD_NOW) else { continue }
-            defer { dlclose(handle) }
-            guard let symbol = dlsym(handle, "SACLockScreenImmediate") else { continue }
-            let lock = unsafeBitCast(symbol, to: LockFn.self)
-            lock()
-            return true
+            guard let symbol = dlsym(handle, "SACLockScreenImmediate") else {
+                dlclose(handle)
+                continue
+            }
+            // Keep the handle open for the process lifetime; closing can invalidate the symbol.
+            return unsafeBitCast(symbol, to: LockFn.self)
         }
-        return false
+        return nil
     }
 
     private static func lockViaAppleScript() -> Bool {

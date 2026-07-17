@@ -2,7 +2,7 @@
 "app.name" = "BreakLock";
 
 "status.starting" = "Käynnistyy…";
-"status.accessibility_missing" = "Käyttöapu puuttuu — avaa Luvat…";
+"status.accessibility_missing" = "Näytön lukitus ei käytettävissä — avaa Luvat…";
 "status.vacation" = "Lomamoodi %@ asti";
 "status.no_breaks_today" = "Ei taukoja tänään";
 "status.breaks" = "Tauot: %@";
@@ -40,15 +40,18 @@
 "onboarding.notifications.title" = "Ilmoitukset";
 "onboarding.notifications.detail" = "5 min varoitus ennen taukoa ja nappi ”Ei taukoa”.";
 "onboarding.accessibility.title" = "Käyttöapu (Accessibility)";
-"onboarding.accessibility.detail" = "Tarvitaan näytön lukitukseen tauon alkaessa. Ota käyttöön: Privacy & Security → Accessibility (ei Accessibility-ominaisuussivua).";
-"onboarding.accessibility.hint" = "Polku: System Settings → Privacy & Security → Accessibility → kytke BreakLock päälle. Tila päivittyy tähän automaattisesti.";
+"onboarding.accessibility.detail" = "Vain varalla, jos järjestelmän lukitus-API ei ole käytettävissä. Privacy & Security → Accessibility.";
+"onboarding.accessibility.hint" = "Polku: System Settings → Privacy & Security → Accessibility → kytke BreakLock päälle.";
+"onboarding.lock.title" = "Näytön lukitus";
+"onboarding.lock.detail" = "Käyttää järjestelmän lukitusta (sama kuin Control+Command+Q). Accessibility on vain varalla.";
+"onboarding.lock.hint" = "Jos lukitus toimii jo menusta, olet valmis — paina Valmis.";
 "onboarding.open_accessibility" = "Avaa Privacy & Security";
 "onboarding.allow" = "Salli…";
 "onboarding.open_settings" = "Avaa asetukset";
 "onboarding.recheck" = "Tarkista uudelleen";
 "onboarding.done" = "Valmis";
 "onboarding.continue_partial" = "Jatka ilman kaikkia lupia";
-"onboarding.status.granted" = "Sallittu";
+"onboarding.status.granted" = "Valmis";
 "onboarding.status.missing" = "Puuttuu";
 
 "idle.title" = "BreakLock";

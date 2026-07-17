@@ -4,7 +4,7 @@ import UserNotifications
 struct PermissionsOnboardingView: View {
     @ObservedObject var model: AppModel
     @State private var notificationStatus: UNAuthorizationStatus = .notDetermined
-    @State private var accessibilityTrusted = false
+    @State private var screenLockReady = false
     @State private var pollTask: Task<Void, Never>?
 
     var body: some View {
@@ -31,9 +31,9 @@ struct PermissionsOnboardingView: View {
             )
 
             permissionRow(
-                title: L10n.t("onboarding.accessibility.title"),
-                detail: L10n.t("onboarding.accessibility.detail"),
-                granted: accessibilityTrusted,
+                title: L10n.t("onboarding.lock.title"),
+                detail: L10n.t("onboarding.lock.detail"),
+                granted: screenLockReady,
                 primaryTitle: L10n.t("onboarding.allow"),
                 primary: {
                     model.requestAccessibilityFromOnboarding()
@@ -44,8 +44,8 @@ struct PermissionsOnboardingView: View {
                 }
             )
 
-            if !accessibilityTrusted {
-                Text(L10n.t("onboarding.accessibility.hint"))
+            if !screenLockReady {
+                Text(L10n.t("onboarding.lock.hint"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -82,7 +82,7 @@ struct PermissionsOnboardingView: View {
     }
 
     private var continueTitle: String {
-        if notificationsGranted && accessibilityTrusted {
+        if notificationsGranted && screenLockReady {
             L10n.t("onboarding.done")
         } else {
             L10n.t("onboarding.continue_partial")
@@ -128,9 +128,15 @@ struct PermissionsOnboardingView: View {
     }
 
     private func refreshStatuses() {
-        accessibilityTrusted = PermissionService.isAccessibilityTrusted
+        screenLockReady = PermissionService.isScreenLockReady
         Task {
             notificationStatus = await PermissionService.notificationStatus()
+            // If everything needed works, don't keep nagging — mark onboarding done.
+            if notificationsGranted && screenLockReady && !PermissionService.onboardingCompleted {
+                await MainActor.run {
+                    model.finishOnboarding()
+                }
+            }
         }
     }
 

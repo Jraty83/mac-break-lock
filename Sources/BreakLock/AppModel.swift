@@ -74,7 +74,7 @@ final class AppModel: ObservableObject {
     }
 
     func refreshStatus() {
-        if !PermissionService.isAccessibilityTrusted {
+        if !PermissionService.isScreenLockReady {
             statusText = L10n.t("status.accessibility_missing")
             return
         }
