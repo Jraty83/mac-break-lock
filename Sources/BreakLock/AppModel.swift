@@ -40,8 +40,8 @@ final class AppModel: ObservableObject {
         refreshStatus()
         observeSessionEvents()
 
-        // First install only — do not pop a window on every launch (Hot-style menu bar).
-        // Missing Accessibility later is shown in the menu status; open Permissions from the menu.
+        // First install only — do not pop a window on every launch (menu bar app).
+        // Open Permissions from the menu if something is still missing.
         if !PermissionService.onboardingCompleted {
             presentPermissions()
         } else {

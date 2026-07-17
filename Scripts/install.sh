@@ -1,9 +1,9 @@
 #!/bin/zsh
 set -euo pipefail
 
-# Install BreakLock like Hot:
+# Install BreakLock:
 #   • ~/Applications/BreakLock.app
-#   • Open at Login via macOS Login Items (registered by the app)
+#   • Open at Login (registered by the app on launch)
 #   • Menu bar icon (no Dock)
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -37,20 +37,14 @@ fi
 
 codesign --force --deep --sign - "$APP_DST" 2>/dev/null || true
 
-echo "→ Launching (registers Open at Login like Hot)…"
+echo "→ Launching (registers Open at Login)…"
 open "$APP_DST"
 
 echo
 echo "✓ Installed: $APP_DST"
 echo "✓ Menu bar: cup icon"
-echo "✓ Open at Login: registered by the app → System Settings → General → Login Items"
+echo "✓ Open at Login: registered on launch"
 echo
-echo "Permissions (important — correct path):"
-echo "  System Settings → Privacy & Security → Accessibility"
-echo "  → find BreakLock → turn the toggle ON"
-echo
-echo "  (The page named just “Accessibility” with VoiceOver/Zoom is a different screen.)"
-echo
-echo "Also: System Settings → Notifications → BreakLock → Allow"
+echo "Give the required permissions (Allow) when macOS asks."
 echo
 echo "Open anytime: Spotlight → BreakLock   or   open -a BreakLock"

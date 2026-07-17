@@ -3,7 +3,7 @@ import Foundation
 import ServiceManagement
 
 enum LoginItemService {
-    /// Registers BreakLock in System Settings → General → Login Items (same list as Hot).
+    /// Registers BreakLock in System Settings → General → Login Items.
     @discardableResult
     static func registerAtLogin() -> Bool {
         do {

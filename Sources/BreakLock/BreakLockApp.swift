@@ -6,7 +6,7 @@ struct BreakLockApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
-        // Hot-style: always in the menu bar; windows only when needed.
+        // Menu bar app: windows only when needed.
         MenuBarExtra {
             MenuContent(model: appDelegate.model)
         } label: {
