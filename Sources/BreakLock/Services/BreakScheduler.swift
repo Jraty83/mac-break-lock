@@ -33,10 +33,17 @@ final class BreakScheduler {
     func rollToCurrentDayIfNeeded(now: Date = Date()) {
         let today = DayFormat.dayString(now)
         guard let last = state.lastPromptDay, last != today else { return }
+        if !state.breakTimes.isEmpty {
+            state.previousBreakTimes = state.breakTimes
+        }
         state.breakTimes = []
         state.cancelledBreakIDs = []
         save()
         clearSchedules()
+    }
+
+    var hasPreviousBreaks: Bool {
+        !state.previousBreakTimes.isEmpty
     }
 
     var isOnVacation: Bool {
@@ -134,9 +141,23 @@ final class BreakScheduler {
         let sorted = times.sorted()
         state.lastPromptDay = DayFormat.dayString()
         state.breakTimes = sorted.map { DayFormat.timeString($0) }
+        if !state.breakTimes.isEmpty {
+            state.previousBreakTimes = state.breakTimes
+        }
         state.cancelledBreakIDs = []
         save()
         await rescheduleAll()
+    }
+
+    /// Re-apply the last saved schedule onto today.
+    @discardableResult
+    func applyPreviousBreaks() async -> Bool {
+        let source = state.previousBreakTimes
+        guard !source.isEmpty else { return false }
+        let dates = source.compactMap { DayFormat.parseTimeToday($0) }
+        guard !dates.isEmpty else { return false }
+        await confirmBreaks(dates)
+        return true
     }
 
     func cancelBreak(id: String) {

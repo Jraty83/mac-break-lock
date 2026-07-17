@@ -5,7 +5,9 @@ struct BreakLockState: Codable, Equatable {
     var lastPromptDay: String?
     /// Break times for today as "HH:mm" in local time.
     var breakTimes: [String]
-    /// Break identifiers cancelled via "Ei taukoa".
+    /// Last confirmed schedule (used by “Same breaks as Yesterday”).
+    var previousBreakTimes: [String]
+    /// Break identifiers cancelled via “No break”.
     var cancelledBreakIDs: [String]
     /// Inclusive end date (yyyy-MM-dd) for vacation mute. Nil = not on vacation.
     var vacationUntilDay: String?
@@ -13,9 +15,37 @@ struct BreakLockState: Codable, Equatable {
     static let empty = BreakLockState(
         lastPromptDay: nil,
         breakTimes: [],
+        previousBreakTimes: [],
         cancelledBreakIDs: [],
         vacationUntilDay: nil
     )
+
+    enum CodingKeys: String, CodingKey {
+        case lastPromptDay, breakTimes, previousBreakTimes, cancelledBreakIDs, vacationUntilDay
+    }
+
+    init(
+        lastPromptDay: String?,
+        breakTimes: [String],
+        previousBreakTimes: [String],
+        cancelledBreakIDs: [String],
+        vacationUntilDay: String?
+    ) {
+        self.lastPromptDay = lastPromptDay
+        self.breakTimes = breakTimes
+        self.previousBreakTimes = previousBreakTimes
+        self.cancelledBreakIDs = cancelledBreakIDs
+        self.vacationUntilDay = vacationUntilDay
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        lastPromptDay = try c.decodeIfPresent(String.self, forKey: .lastPromptDay)
+        breakTimes = try c.decodeIfPresent([String].self, forKey: .breakTimes) ?? []
+        previousBreakTimes = try c.decodeIfPresent([String].self, forKey: .previousBreakTimes) ?? []
+        cancelledBreakIDs = try c.decodeIfPresent([String].self, forKey: .cancelledBreakIDs) ?? []
+        vacationUntilDay = try c.decodeIfPresent(String.self, forKey: .vacationUntilDay)
+    }
 }
 
 enum DayFormat {

@@ -23,9 +23,11 @@ final class AppModel: ObservableObject {
     @Published var sheet: Sheet?
     @Published var statusText: String = L10n.t("status.starting")
     @Published var breakItems: [BreakScheduler.BreakDisplayItem] = []
-    @Published var shouldOpenPromptWindow = false
+    /// Bumps on every request to open the prompt window (fixes every-other-click).
+    @Published var promptOpenNonce: Int = 0
     @Published var shouldClosePromptWindow = false
     @Published var permissionRefreshToken = 0
+    @Published var hasPreviousBreaks = false
 
     private let scheduler = BreakScheduler.shared
     private var didStart = false
@@ -38,6 +40,13 @@ final class AppModel: ObservableObject {
         scheduler.wireNotificationHandlers()
         _ = LoginItemService.registerAtLogin()
         scheduler.reload()
+        // Seed previousBreakTimes from today's list once (upgrade path).
+        if scheduler.state.previousBreakTimes.isEmpty, !scheduler.state.breakTimes.isEmpty {
+            var state = scheduler.state
+            state.previousBreakTimes = state.breakTimes
+            Persistence.save(state)
+            scheduler.reload()
+        }
         await scheduler.rescheduleAll()
         refreshStatus()
         observeSessionEvents()
@@ -50,8 +59,7 @@ final class AppModel: ObservableObject {
     }
 
     func presentPermissions() {
-        sheet = .permissions
-        shouldOpenPromptWindow = true
+        openPrompt(.permissions)
         permissionRefreshToken += 1
     }
 
@@ -78,9 +86,15 @@ final class AppModel: ObservableObject {
         shouldClosePromptWindow = true
     }
 
+    private func openPrompt(_ sheet: Sheet) {
+        self.sheet = sheet
+        promptOpenNonce += 1
+    }
+
     func refreshStatus() {
         scheduler.rollToCurrentDayIfNeeded()
         breakItems = scheduler.breakDisplayItems()
+        hasPreviousBreaks = scheduler.hasPreviousBreaks
 
         if !PermissionService.isScreenLockReady {
             statusText = L10n.t("status.accessibility_missing")
@@ -107,8 +121,7 @@ final class AppModel: ObservableObject {
     }
 
     private func presentMorning() {
-        sheet = .morning
-        shouldOpenPromptWindow = true
+        openPrompt(.morning)
     }
 
     func skipToday() {
@@ -133,6 +146,16 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func applyYesterdayBreaks() {
+        Task {
+            let ok = await scheduler.applyPreviousBreaks()
+            if ok {
+                dismissPromptWindow()
+                refreshStatus()
+            }
+        }
+    }
+
     func confirmVacation(_ day: Date) {
         scheduler.setVacation(until: day)
         dismissPromptWindow()
@@ -148,14 +171,6 @@ final class AppModel: ObservableObject {
     func clearBreaks() {
         scheduler.clearBreaks()
         refreshStatus()
-    }
-
-    func forceReschedule() {
-        Task {
-            scheduler.reload()
-            await scheduler.rescheduleAll()
-            refreshStatus()
-        }
     }
 
     func quit() {

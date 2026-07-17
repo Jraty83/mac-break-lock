@@ -26,11 +26,10 @@ private struct MenuBarLabel: View {
 
     var body: some View {
         Image(systemName: "cup.and.saucer.fill")
-            .onChange(of: model.shouldOpenPromptWindow) { _, open in
-                guard open else { return }
+            .onChange(of: model.promptOpenNonce) { _, _ in
                 openWindow(id: "prompt")
                 NSApp.activate(ignoringOtherApps: true)
-                model.shouldOpenPromptWindow = false
+                bringPromptToFront()
             }
             .onChange(of: model.shouldClosePromptWindow) { _, close in
                 guard close else { return }
@@ -50,18 +49,26 @@ private func closePromptWindows() {
     }
 }
 
+@MainActor
+private func bringPromptToFront() {
+    for window in NSApp.windows {
+        let id = window.identifier?.rawValue ?? ""
+        if id == "prompt" || window.title == L10n.t("app.name") {
+            window.makeKeyAndOrderFront(nil)
+        }
+    }
+}
+
 private struct MenuContent: View {
     @ObservedObject var model: AppModel
-    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             BreakStatusHeader(model: model)
                 .padding(.bottom, 4)
 
-            Button(L10n.t("menu.open_morning_prompt")) {
+            Button(L10n.t("menu.set_breaks")) {
                 model.openMorningPromptManually()
-                openWindow(id: "prompt")
             }
 
             if BreakScheduler.shared.isOnVacation {
@@ -75,7 +82,6 @@ private struct MenuContent: View {
             Button(L10n.t("menu.lock_now")) {
                 ScreenLockService.lockScreenOrExplain {
                     model.presentPermissions()
-                    openWindow(id: "prompt")
                 }
             }
 
@@ -83,13 +89,8 @@ private struct MenuContent: View {
                 model.clearBreaks()
             }
 
-            Button(L10n.t("menu.reschedule")) {
-                model.forceReschedule()
-            }
-
             Button(L10n.t("menu.permissions")) {
                 model.presentPermissions()
-                openWindow(id: "prompt")
             }
 
             Divider()
@@ -117,31 +118,31 @@ private struct BreakStatusHeader: View {
             HStack(alignment: .firstTextBaseline, spacing: 0) {
                 Text(L10n.t("status.breaks_prefix"))
                     .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color(nsColor: .secondaryLabelColor))
                 ForEach(Array(model.breakItems.enumerated()), id: \.element.id) { index, item in
                     if index > 0 {
                         Text(", ")
                             .font(.headline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color(nsColor: .secondaryLabelColor))
                     }
                     Text(item.time)
-                        .font(.headline)
-                        .fontWeight(item.state == .next ? .bold : .regular)
-                        .foregroundStyle(style(for: item.state))
+                        .font(.headline.weight(item.state == .next ? .bold : .regular))
+                        .foregroundStyle(color(for: item.state))
                 }
             }
             .fixedSize(horizontal: false, vertical: true)
         }
     }
 
-    private func style(for state: BreakScheduler.BreakDisplayState) -> AnyShapeStyle {
+    private func color(for state: BreakScheduler.BreakDisplayState) -> Color {
         switch state {
         case .past, .cancelled:
-            AnyShapeStyle(.tertiary)
+            Color(nsColor: .tertiaryLabelColor)
         case .next:
-            AnyShapeStyle(.primary)
+            // Full-contrast label (white in Dark Mode) so the next break clearly stands out.
+            Color(nsColor: .labelColor)
         case .upcoming:
-            AnyShapeStyle(.secondary)
+            Color(nsColor: .secondaryLabelColor)
         }
     }
 }
@@ -156,7 +157,9 @@ private struct PromptRootView: View {
                 PermissionsOnboardingView(model: model)
             case .morning:
                 MorningPromptView(
-                    onSetBreaks: { model.openBreakEditor() },
+                    hasPreviousBreaks: model.hasPreviousBreaks,
+                    onCustom: { model.openBreakEditor() },
+                    onSameAsYesterday: { model.applyYesterdayBreaks() },
                     onSkipToday: { model.skipToday() },
                     onVacation: { model.openVacationEditor() }
                 )
@@ -191,7 +194,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        // Cancel timers + pending notifications so Quit never locks later in the background.
         BreakScheduler.shared.shutdown()
     }
 

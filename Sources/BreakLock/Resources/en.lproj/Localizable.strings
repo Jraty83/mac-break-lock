@@ -10,16 +10,18 @@
 "status.waiting_prompt" = "Waiting for morning prompt";
 
 "menu.permissions" = "Permissions…";
-"menu.open_morning_prompt" = "Open morning prompt…";
+"menu.set_breaks" = "Set breaks";
+"menu.open_morning_prompt" = "Set breaks";
 "menu.clear_vacation" = "Turn off vacation mode";
 "menu.lock_now" = "Lock screen now";
 "menu.clear_breaks" = "Clear breaks";
-"menu.reschedule" = "Force reschedule";
 "menu.quit" = "Quit BreakLock";
 
 "prompt.morning.title" = "When do you want to take breaks today?";
-"prompt.morning.subtitle" = "Set break times, skip today, or mute with vacation mode.";
-"prompt.morning.set_times" = "Set break times";
+"prompt.morning.subtitle" = "Choose custom times, reuse yesterday, skip today, or mute with vacation mode.";
+"prompt.morning.custom" = "Custom";
+"prompt.morning.same_as_yesterday" = "Same breaks as Yesterday";
+"prompt.morning.set_times" = "Custom";
 "prompt.morning.skip" = "No breaks today";
 "prompt.morning.vacation" = "Set vacation mode";
 

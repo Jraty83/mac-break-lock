@@ -10,16 +10,18 @@
 "status.waiting_prompt" = "Odottaa aamupromptia";
 
 "menu.permissions" = "Luvat…";
-"menu.open_morning_prompt" = "Avaa aamuprompti…";
+"menu.set_breaks" = "Aseta tauot";
+"menu.open_morning_prompt" = "Aseta tauot";
 "menu.clear_vacation" = "Poista lomamoodi";
 "menu.lock_now" = "Lukitse näyttö nyt";
 "menu.clear_breaks" = "Tyhjennä tauot";
-"menu.reschedule" = "Pakota uudelleenaikataulutus";
 "menu.quit" = "Lopeta BreakLock";
 
 "prompt.morning.title" = "Milloin haluat tänään pitää taukoja?";
-"prompt.morning.subtitle" = "Aseta taukoajat, ohita tämä päivä tai hiljennä lomamoodiin.";
-"prompt.morning.set_times" = "Aseta taukoajat";
+"prompt.morning.subtitle" = "Valitse omat ajat, kopioi eiliset, ohita päivä tai hiljennä lomamoodiin.";
+"prompt.morning.custom" = "Custom";
+"prompt.morning.same_as_yesterday" = "Same breaks as Yesterday";
+"prompt.morning.set_times" = "Custom";
 "prompt.morning.skip" = "Ei taukoja tänään";
 "prompt.morning.vacation" = "Aseta lomamoodi";
 

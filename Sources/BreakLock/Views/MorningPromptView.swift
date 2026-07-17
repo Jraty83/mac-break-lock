@@ -1,7 +1,9 @@
 import SwiftUI
 
 struct MorningPromptView: View {
-    var onSetBreaks: () -> Void
+    var hasPreviousBreaks: Bool
+    var onCustom: () -> Void
+    var onSameAsYesterday: () -> Void
     var onSkipToday: () -> Void
     var onVacation: () -> Void
 
@@ -16,13 +18,21 @@ struct MorningPromptView: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             VStack(spacing: 10) {
-                Button(action: onSetBreaks) {
-                    Text(L10n.t("prompt.morning.set_times"))
+                Button(action: onCustom) {
+                    Text(L10n.t("prompt.morning.custom"))
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .keyboardShortcut(.defaultAction)
+
+                Button(action: onSameAsYesterday) {
+                    Text(L10n.t("prompt.morning.same_as_yesterday"))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .disabled(!hasPreviousBreaks)
 
                 Button(action: onSkipToday) {
                     Text(L10n.t("prompt.morning.skip"))
