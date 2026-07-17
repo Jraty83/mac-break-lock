@@ -14,8 +14,7 @@ enum PermissionService {
         await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
     }
 
-    /// Shows the system “BreakLock would like to control this computer…” style dialog
-    /// with a shortcut into System Settings → Accessibility.
+    /// System dialog that offers to open Privacy & Security → Accessibility.
     @discardableResult
     static func promptAccessibility() -> Bool {
         let key = "AXTrustedCheckOptionPrompt" as CFString
@@ -23,6 +22,8 @@ enum PermissionService {
         return AXIsProcessTrustedWithOptions(opts)
     }
 
+    /// Opens System Settings → Privacy & Security → Accessibility
+    /// (not the top-level Accessibility feature page with VoiceOver / Zoom).
     static func openAccessibilitySettings() {
         let urls = [
             "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility",

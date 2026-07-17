@@ -40,11 +40,11 @@
 "onboarding.notifications.title" = "Notifications";
 "onboarding.notifications.detail" = "5-minute warning before a break, with a “No break” action.";
 "onboarding.accessibility.title" = "Accessibility";
-"onboarding.accessibility.detail" = "Required to lock the screen when a break starts.";
-"onboarding.accessibility.hint" = "After enabling BreakLock in the Accessibility list, return here — status updates automatically.";
+"onboarding.accessibility.detail" = "Required to lock the screen when a break starts. Enable it under Privacy & Security → Accessibility (not the Accessibility features page).";
+"onboarding.accessibility.hint" = "Path: System Settings → Privacy & Security → Accessibility → turn BreakLock ON. Status here updates automatically.";
+"onboarding.open_accessibility" = "Open Privacy & Security";
 "onboarding.allow" = "Allow…";
 "onboarding.open_settings" = "Open Settings";
-"onboarding.open_accessibility" = "Open Accessibility";
 "onboarding.recheck" = "Check again";
 "onboarding.done" = "Done";
 "onboarding.continue_partial" = "Continue without all permissions";

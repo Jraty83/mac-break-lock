@@ -40,11 +40,11 @@
 "onboarding.notifications.title" = "Ilmoitukset";
 "onboarding.notifications.detail" = "5 min varoitus ennen taukoa ja nappi ”Ei taukoa”.";
 "onboarding.accessibility.title" = "Käyttöapu (Accessibility)";
-"onboarding.accessibility.detail" = "Tarvitaan näytön lukitukseen tauon alkaessa.";
-"onboarding.accessibility.hint" = "Kun olet kytkenyt BreakLockin päälle Käyttöapu-listassa, palaa tähän — tila päivittyy automaattisesti.";
+"onboarding.accessibility.detail" = "Tarvitaan näytön lukitukseen tauon alkaessa. Ota käyttöön: Privacy & Security → Accessibility (ei Accessibility-ominaisuussivua).";
+"onboarding.accessibility.hint" = "Polku: System Settings → Privacy & Security → Accessibility → kytke BreakLock päälle. Tila päivittyy tähän automaattisesti.";
+"onboarding.open_accessibility" = "Avaa Privacy & Security";
 "onboarding.allow" = "Salli…";
 "onboarding.open_settings" = "Avaa asetukset";
-"onboarding.open_accessibility" = "Avaa Käyttöapu";
 "onboarding.recheck" = "Tarkista uudelleen";
 "onboarding.done" = "Valmis";
 "onboarding.continue_partial" = "Jatka ilman kaikkia lupia";

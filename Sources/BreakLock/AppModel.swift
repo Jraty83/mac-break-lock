@@ -34,6 +34,7 @@ final class AppModel: ObservableObject {
 
         NotificationService.shared.configure()
         scheduler.wireNotificationHandlers()
+        _ = LoginItemService.registerAtLogin()
         scheduler.reload()
         await scheduler.rescheduleAll()
         refreshStatus()
